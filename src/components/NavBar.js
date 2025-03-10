@@ -17,16 +17,16 @@ export default function NavBar() {
             <Link className="nav-link" href="/">
               Home/Dashboard
             </Link>
-            <Link className="nav-link" href="/">
+            <Link className="nav-link" href="/networks">
               Networks
             </Link>
-            <Link className="nav-link" href="/">
+            <Link className="nav-link" href="/devices">
               Devices
             </Link>
-            <Link className="nav-link" href="/">
+            <Link className="nav-link" href="/documentations">
               Documentations
             </Link>
-            <Link className="nav-link" href="/">
+            <Link className="nav-link" href="/profile">
               Profile
             </Link>
           </Nav>
