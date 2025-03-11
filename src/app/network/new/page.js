@@ -1,4 +1,4 @@
-// use the TourForm component here
+// use the NetworkForm component here
 import NetworkForm from '@/components/forms/NetworkForm';
 import React from 'react';
 
