@@ -40,7 +40,7 @@ const getSingleUser = (userId) =>
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error('User not found');
+            throw new Error('The requested user was not found'); // Matches backend
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -48,6 +48,20 @@ const getSingleUser = (userId) =>
       })
       .then((data) => resolve(data))
       .catch(reject);
+
+    // Optional softer approach (uncomment to use instead):
+
+    // .then((response) => {
+    //   if (!response.ok) {
+    //     if (response.status === 404) {
+    //       return resolve(null); // No rejection, returns null for not found
+    //     }
+    //     throw new Error(`HTTP error! status: ${response.status}`);
+    //   }
+    //   return response.json();
+    // })
+    // .then(resolve)
+    // .catch((error) => resolve({ error: error.message }));
   });
 
 // CREATE USER
@@ -93,14 +107,14 @@ const updateUser = (payload) =>
       body: JSON.stringify({
         username: payload.username,
         email: payload.email,
-        password: payload.password, // Optional, will be hashed by backend if provided
+        password: payload.password, // Optional, hashed by backend if provided
         role: payload.role,
       }),
     })
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error('User not found');
+            throw new Error('The requested user was not found'); // Matches backend
           } else if (response.status === 400) {
             return response.json().then((errorData) => {
               throw new Error(errorData.message || JSON.stringify(errorData));
@@ -127,7 +141,7 @@ const deleteUser = (userId) =>
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error('User not found');
+            throw new Error('The requested user was not found'); // Matches backend
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
