@@ -53,7 +53,7 @@ function Home() {
             DEVICES
           </Button>
         </Link>
-        <Link href="/documentations" className="d-block w-100 mb-2 text-decoration-none">
+        <Link href="/documentation" className="d-block w-100 mb-2 text-decoration-none">
           <Button className="w-100" style={{ padding: '10px' }}>
             DOCUMENTATIONS
           </Button>

@@ -36,7 +36,7 @@ export default function DevicesPage() {
         <Button>Add A Device</Button>
       </Link>
       <h1 className="text-3xl font-bold mb-4">Devices</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{devices.length > 0 ? devices.map((device) => <DeviceCard key={device.device_id} deviceObj={device} onUpdate={handleUpdate} />) : <p>No networks available.</p>}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{devices.length > 0 ? devices.map((device) => <DeviceCard key={device.device_id} deviceObj={device} onUpdate={handleUpdate} />) : <p>No devices available.</p>}</div>
     </div>
   );
 }

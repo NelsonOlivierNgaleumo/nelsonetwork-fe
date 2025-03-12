@@ -23,7 +23,7 @@ export default function NavBar() {
             <Link className="nav-link" href="/devices">
               Devices
             </Link>
-            <Link className="nav-link" href="/documentations">
+            <Link className="nav-link" href="/documentation">
               Documentations
             </Link>
             <Link className="nav-link" href="/profile">
