@@ -1,4 +1,4 @@
-// src/components/DeviceForm.js
+// src/components/forms/DeviceForm.js
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 
@@ -37,32 +37,44 @@ export default function DeviceForm({ obj = initialState }) {
   const { user } = useAuth();
   const router = useRouter();
 
-  // Fetch users on mount
   useEffect(() => {
+    console.log('Fetching users...'); // Debug
     getUsers()
-      .then((data) => setUsers(data))
-      .catch((err) => console.error('Failed to fetch users:', err));
+      .then((data) => {
+        console.log('Users fetched:', data); // Debug
+        setUsers(data);
+        // Preselect current user if no user_id set and user exists
+        if (!formInput.user_id && user && data.length > 0) {
+          const currentUser = data.find((u) => u.email === user.email);
+          if (currentUser) {
+            setFormInput((prev) => ({ ...prev, user_id: currentUser.id }));
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to fetch users:', err);
+        setError('Could not load users. Please try again.');
+      });
   }, []);
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
+    if (!formInput.user_id) {
+      setError('Please select a user.');
+      return;
+    }
+
     try {
       const payload = {
         ...formInput,
-        user_id: Number(formInput.user_id), // Convert to number for API
+        user_id: Number(formInput.user_id), // Ensure number
       };
 
       if (obj.device_id) {
-        // Update existing device
-        await updateDevice({
-          ...payload,
-          device_id: obj.device_id,
-        });
+        await updateDevice({ ...payload, device_id: obj.device_id });
       } else {
-        // Create new device
         await createDevice(payload);
       }
 
@@ -73,7 +85,6 @@ export default function DeviceForm({ obj = initialState }) {
     }
   };
 
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormInput((prevState) => ({
@@ -99,68 +110,57 @@ export default function DeviceForm({ obj = initialState }) {
     <div className="flex flex-row justify-center">
       <ThemeProvider theme={darkTheme}>
         <Form className="w-75 mt-3" onSubmit={handleSubmit}>
-          {/* ERROR MESSAGE */}
           {error && (
             <div className="alert alert-danger" role="alert">
               {error}
             </div>
           )}
 
-          {/* DEVICE NAME INPUT */}
           <Form.Group className="mb-3" controlId="formDeviceName">
             <Form.Label>Device Name</Form.Label>
             <Form.Control name="device_name" type="text" maxLength={100} placeholder="Enter device name" value={formInput.device_name || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* DEVICE IMAGE INPUT */}
           <Form.Group className="mb-3" controlId="formDeviceImage">
             <Form.Label>Device Image URL</Form.Label>
-            <Form.Control name="device_image" type="url" placeholder="Enter image URL (e.g., https://example.com/image.jpg)" value={formInput.device_image || ''} onChange={handleChange} required />
+            <Form.Control name="device_image" type="url" placeholder="Enter image URL" value={formInput.device_image || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* AGE OF DEVICE INPUT */}
           <Form.Group className="mb-3" controlId="formAgeOfDevice">
             <Form.Label>Age of Device</Form.Label>
             <Form.Control name="age_of_device" type="text" maxLength={50} placeholder="e.g., 2 years" value={formInput.age_of_device || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* DEVICE IP ADDRESS INPUT */}
           <Form.Group className="mb-3" controlId="formDeviceIp">
             <Form.Label>Device IP Address</Form.Label>
             <Form.Control name="device_ip" type="text" placeholder="e.g., 192.168.1.1" value={formInput.device_ip || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* DEVICE TYPE INPUT */}
           <Form.Group className="mb-3" controlId="formDeviceType">
             <Form.Label>Device Type</Form.Label>
             <Form.Control name="device_type" type="text" maxLength={50} placeholder="e.g., Router" value={formInput.device_type || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* DEVICE DESCRIPTION INPUT */}
           <Form.Group className="mb-3" controlId="formDeviceDescription">
             <Form.Label>Description</Form.Label>
             <Form.Control name="device_description" type="text" maxLength={200} placeholder="Enter description" value={formInput.device_description || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* SERIAL NUMBER INPUT */}
           <Form.Group className="mb-3" controlId="formSerialNumber">
             <Form.Label>Serial Number</Form.Label>
             <Form.Control name="serial_number" type="text" maxLength={100} placeholder="Enter serial number" value={formInput.serial_number || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* MAC ADDRESS INPUT */}
           <Form.Group className="mb-3" controlId="formMacAddress">
             <Form.Label>MAC Address</Form.Label>
             <Form.Control name="mac_address" type="text" maxLength={100} placeholder="e.g., 00:1A:2B:3C:4D:5E" value={formInput.mac_address || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* LOCATION INPUT */}
           <Form.Group className="mb-3" controlId="formLocation">
             <Form.Label>Location</Form.Label>
             <Form.Control name="location" type="text" maxLength={100} placeholder="Enter location" value={formInput.location || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* USER SELECTOR */}
           <Form.Group className="mb-3" controlId="formUser">
             <Form.Label>User</Form.Label>
             <Form.Select name="user_id" value={formInput.user_id || ''} onChange={handleChange} required>
@@ -173,13 +173,11 @@ export default function DeviceForm({ obj = initialState }) {
             </Form.Select>
           </Form.Group>
 
-          {/* LAST SOFTWARE UPDATE INPUT */}
           <Form.Group className="mb-3" controlId="formLastSoftwareUpdate">
             <Form.Label>Last Software Update</Form.Label>
             <Form.Control name="last_software_update" type="text" maxLength={50} placeholder="e.g., 2023-10-15" value={formInput.last_software_update || ''} onChange={handleChange} required />
           </Form.Group>
 
-          {/* SUBMIT BUTTON */}
           <div className="text-center">
             <Button variant="primary" type="submit" className="w-25 mt-2 mb-4">
               {obj.device_id ? 'Update' : 'Create'} Device

@@ -11,7 +11,8 @@ const getAuthHeaders = () => {
 
 // GET ALL USERS
 const getUsers = () =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
+    // No reject, always resolve
     fetch(endpoint, {
       method: 'GET',
       headers: {
@@ -20,16 +21,22 @@ const getUsers = () =>
       },
     })
       .then((response) => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          console.error(`HTTP error! status: ${response.status}`);
+          return []; // Resolve empty array on error
+        }
         return response.json();
       })
-      .then((data) => resolve(data)) // Returns array of users
-      .catch(reject);
+      .then((data) => resolve(data || [])) // Ensure array
+      .catch((error) => {
+        console.error('Fetch error:', error.message);
+        resolve([]); // Resolve empty array on network error
+      });
   });
 
-// GET SINGLE USER
+// Ensure getSingleUser also handles 404 gracefully (for other components)
 const getSingleUser = (userId) =>
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     fetch(`${endpoint}${userId}/`, {
       method: 'GET',
       headers: {
@@ -39,30 +46,31 @@ const getSingleUser = (userId) =>
     })
       .then((response) => {
         if (!response.ok) {
-          if (response.status === 404) {
-            throw new Error('The requested user was not found'); // Matches backend
-          }
+          if (response.status === 404) return null;
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
       })
       .then((data) => resolve(data))
-      .catch(reject);
-
-    // Optional softer approach (uncomment to use instead):
-
-    // .then((response) => {
-    //   if (!response.ok) {
-    //     if (response.status === 404) {
-    //       return resolve(null); // No rejection, returns null for not found
-    //     }
-    //     throw new Error(`HTTP error! status: ${response.status}`);
-    //   }
-    //   return response.json();
-    // })
-    // .then(resolve)
-    // .catch((error) => resolve({ error: error.message }));
+      .catch((error) => {
+        console.error('Fetch error:', error.message);
+        resolve(null); // Resolve null on error
+      });
   });
+
+// Optional softer approach (uncomment to use instead):
+
+// .then((response) => {
+//   if (!response.ok) {
+//     if (response.status === 404) {
+//       return resolve(null); // No rejection, returns null for not found
+//     }
+//     throw new Error(`HTTP error! status: ${response.status}`);
+//   }
+//   return response.json();
+// })
+// .then(resolve)
+// .catch((error) => resolve({ error: error.message }));
 
 // CREATE USER
 const createUser = (payload) =>
