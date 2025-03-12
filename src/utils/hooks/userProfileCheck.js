@@ -1,22 +1,31 @@
+// userProfileCheck.js
 import { useAuth } from '@/utils/context/authContext';
 import { useState, useEffect } from 'react';
 import { getSingleUser } from '@/api/userData';
 
 export default function UserProfileCheck() {
   const { user } = useAuth();
-  const [isProfileComplete, setIsProfileComplete] = useState(null); // Initially null to prevent unnecessary modal flash
+  const [isProfileComplete, setIsProfileComplete] = useState(null); // Null until checked
 
   useEffect(() => {
     if (user) {
-      getSingleUser(user.user_id).then((data) => {
-        if (data?.[0]?.username && data?.[0]?.role) {
-          setIsProfileComplete(true); // If user data is available, set isProfileComplete to true
-        } else {
-          setIsProfileComplete(false); // If user data is not available, set isProfileComplete to false
-        }
-      });
+      const idToCheck = localStorage.getItem('djangoUserId') || user.user_id; // Try stored ID first
+      console.log('Checking profile for ID:', idToCheck); // Debug
+      getSingleUser(idToCheck)
+        .then((data) => {
+          if (data && data.username && data.role) {
+            // Check object directly, not array
+            setIsProfileComplete(true);
+          } else {
+            setIsProfileComplete(false);
+          }
+        })
+        .catch((error) => {
+          console.error('Error checking profile:', error.message);
+          setIsProfileComplete(false); // Treat 404 as incomplete profile
+        });
     }
-  }, [user]); // Run this effect when user changes
+  }, [user]);
 
   return isProfileComplete;
 }
