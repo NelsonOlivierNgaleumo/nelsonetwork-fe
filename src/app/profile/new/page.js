@@ -1,34 +1,42 @@
 'use client';
 
-import ProfileForm from '@/components/forms/ProfileForm';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { createUser } from '@/api/userData';
 import { useAuth } from '@/utils/context/authContext';
-import { getSingleUser } from '@/api/userData';
+import { useRouter } from 'next/navigation';
 
-export default function CreateProfilePage() {
+export default function NewProfilePage() {
   const { user } = useAuth();
+  const [formData, setFormData] = useState({ username: '', role: '' });
   const router = useRouter();
-  const [showProfileForm, setShowProfileForm] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      getSingleUser(user.user_id).then((data) => {
-        // if user has a profile, redirect to networks page
-        if (data && data[0] && data[0].username && data[0].role) {
-          router.push('/networks');
-        } else {
-          // if user does not have a profile, show the profile form
-          setShowProfileForm(true);
-        }
-      });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const payload = {
+      username: formData.username,
+      email: user.email,
+      password: 'temp-password', // Replace with secure logic if needed
+      role: formData.role,
+    };
+    try {
+      const newUser = await createUser(payload);
+      localStorage.setItem('djangoUserId', newUser.id); // Store Django ID
+      router.push('/profile');
+    } catch (error) {
+      console.error('Error creating user:', error.message);
     }
-  }, [user, router]);
+  };
 
   return (
-    <div>
-      {/* Show the profile form if showProfileForm is true */}
-      {showProfileForm && <ProfileForm />}
+    <div style={{ maxWidth: '600px', margin: 'auto', padding: '30px' }}>
+      <h1>Create Your Profile</h1>
+      <form onSubmit={handleSubmit}>
+        <input type="text" placeholder="Username" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} />
+        <input type="text" placeholder="E-mail" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+        <input type="text" placeholder="Password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+        <input type="text" placeholder="Role" value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} />
+        <button type="submit">Save Profile</button>
+      </form>
     </div>
   );
 }
