@@ -21,6 +21,16 @@ export default function ProfilePage() {
       setShowModal(true); // Show modal if profile incomplete
     } else if (isProfileComplete === true) {
       const idToCheck = localStorage.getItem('djangoUserId') || user.user_id;
+
+      // /*fetching orile with id*/
+
+      console.log('Fetching profile with ID:', idToCheck); // Debug
+      if (!idToCheck || idToCheck === ':1') {
+        // Prevent bad fetch
+        setShowModal(true);
+        return;
+      }
+
       fetch(`http://localhost:8000/api/users/${idToCheck}/`, {
         method: 'GET',
         headers: {
@@ -29,8 +39,14 @@ export default function ProfilePage() {
         },
       })
         .then((response) => {
-          if (response.ok) return response.json();
-          throw new Error('Failed to fetch user');
+          if (!response.ok) {
+            if (response.status === 404) {
+              setShowModal(true); // Handle 404 here too
+              return null;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json();
         })
         .then((data) => setUserData(data))
         .catch((error) => {
