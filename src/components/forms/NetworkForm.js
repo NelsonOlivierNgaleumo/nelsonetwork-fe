@@ -1,6 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable no-unused-vars */
-
 'use client';
 
 import { Form, Button } from 'react-bootstrap';
@@ -8,7 +5,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PropTypes from 'prop-types';
-import { useAuth } from '@/utils/context/authContext';
+// import { useAuth } from '@/utils/context/authContext';
 import { getUsers } from '@/api/userData';
 import { getDevices } from '@/api/deviceData';
 import { createNetwork, updateNetwork } from '@/api/networkData';
@@ -22,6 +19,7 @@ const initialState = {
   user_id: '',
   location: '',
   device_id: '',
+  network_id: null, // Ensure this property exists, even if null
 };
 
 export default function NetworkForm({ obj = initialState, onNetworkCreated }) {
@@ -32,7 +30,7 @@ export default function NetworkForm({ obj = initialState, onNetworkCreated }) {
   const [users, setUsers] = useState([]);
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState(''); // State variable for error message
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const router = useRouter();
 
   // Fetch users and devices on mount
@@ -59,11 +57,12 @@ export default function NetworkForm({ obj = initialState, onNetworkCreated }) {
         device_id: Number(formInput.device_id),
       };
 
-      if (obj.network_id) {
+      // Ensure network_id exists when updating, else it's a new creation
+      if (formInput?.network_id) {
         // Update existing network
         await updateNetwork({
           ...payload,
-          network_id: obj.network_id,
+          network_id: formInput.network_id, // Using formInput directly here
         });
       } else {
         // Create new network
@@ -181,7 +180,7 @@ export default function NetworkForm({ obj = initialState, onNetworkCreated }) {
           {/* SUBMIT BUTTON */}
           <div className="text-center">
             <Button variant="primary" type="submit" className="w-25 mt-2 mb-4">
-              {obj.network_id ? 'Update' : 'Create'} Network
+              {formInput?.network_id ? 'Update' : 'Create'} Network
             </Button>
           </div>
         </Form>
