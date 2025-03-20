@@ -1,7 +1,7 @@
 // API CALLS FOR NETWORKS
 
 // Base endpoint for the API (adjust to match your Django backend URL)
-const endpoint = 'http://localhost:8000/api/networks/';
+const endpoint = 'http://localhost:8000/networks';
 
 // Helper function to get authentication headers (assuming token-based auth, e.g., JWT)
 const getAuthHeaders = () => {
@@ -10,9 +10,9 @@ const getAuthHeaders = () => {
 };
 
 // GET ALL NETWORKS
-const getNetworks = () =>
+const getNetworks = (userId) =>
   new Promise((resolve, reject) => {
-    fetch(endpoint, {
+    fetch(`${endpoint}?user_id=${userId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -23,7 +23,7 @@ const getNetworks = () =>
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
       })
-      .then((data) => resolve(data)) // Returns array of networks
+      .then((data) => resolve(data))
       .catch(reject);
   });
 

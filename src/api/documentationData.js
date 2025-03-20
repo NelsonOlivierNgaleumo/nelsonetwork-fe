@@ -1,7 +1,7 @@
 // src/api/documentationData.js
 
 // Base endpoint for the API (adjust to match your Django backend URL)
-const endpoint = 'http://localhost:8000/api/documentations/';
+const endpoint = 'http://localhost:8000/documentations';
 
 // Helper function to get authentication headers (assuming token-based auth, e.g., JWT)
 const getAuthHeaders = () => {

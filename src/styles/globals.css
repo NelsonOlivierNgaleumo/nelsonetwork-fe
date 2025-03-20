@@ -2,3 +2,64 @@ body {
   background: black;
   color: white;
 }
+
+.user-form {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.user-form div {
+  margin-bottom: 15px;
+}
+
+.user-form label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.user-form input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.user-form button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.profile-page {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+.profile-page div {
+  margin-bottom: 10px;
+}
+
+.profile-page button {
+  margin-right: 10px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.profile-page button:first-of-type {
+  background-color: #007bff;
+  color: white;
+}
+
+.profile-page button:last-of-type {
+  background-color: #dc3545;
+  color: white;
+}

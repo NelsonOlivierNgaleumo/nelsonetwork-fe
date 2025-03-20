@@ -4,30 +4,48 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import Link from 'next/link';
-import { getDevices } from '@/api/deviceData'; // Client-side API for fetching devices
-import DeviceCard from '@/components/DeviceCard'; // Import DeviceCard from its own file
+import DeviceCard from '@/components/DeviceCard';
 import { useAuth } from '../../utils/context/authContext';
 
 export default function DevicesPage() {
-  // Set a state variable for devices
   const [devices, setDevices] = useState([]);
-  // Get User ID using useAuth Hook
   const { user } = useAuth([]);
+  const endpoint = 'http://localhost:8000/devices';
 
-  // Fetch all networks on mount, this function makes the API call to get all the Devices
-  const fetchDevices = () => {
-    getDevices(user.user_id).then(setDevices);
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('auth_token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-  // Make the call to the API to get all the devices on component render
+  const getDevices = (userId) =>
+    new Promise((resolve, reject) => {
+      fetch(`${endpoint}?user_id=${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+      })
+        .then((response) => {
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          return response.json();
+        })
+        .then((data) => resolve(data))
+        .catch(reject);
+    });
+
+  const fetchDevices = () => {
+    getDevices(user.user_id)
+      .then(setDevices)
+      .catch((err) => console.error(err));
+  };
 
   useEffect(() => {
     fetchDevices();
   }, []);
 
-  // Handler to update the device list after deletion
   const handleUpdate = () => {
-    fetchDevices(); // Refresh the list
+    fetchDevices();
   };
 
   return (

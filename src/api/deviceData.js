@@ -1,7 +1,7 @@
 // API CALLS FOR DEVICES
 
 // Base endpoint for the API (adjust to match your Django backend URL)
-const endpoint = 'http://localhost:8000/api/devices/';
+const endpoint = 'http://localhost:8000/devices';
 
 // Helper function to get authentication headers (assuming token-based auth, e.g., JWT)
 const getAuthHeaders = () => {
