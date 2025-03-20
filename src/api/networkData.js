@@ -1,24 +1,27 @@
-// API CALLS FOR NETWORKS
+// // API CALLS FOR NETWORKS
 
-// Base endpoint for the API (adjust to match your Django backend URL)
+// // Base endpoint for the API (adjust to match your Django backend URL)
+
 const endpoint = 'http://localhost:8000/networks';
 
-// Helper function to get authentication headers (assuming token-based auth, e.g., JWT)
 const getAuthHeaders = () => {
   const token = localStorage.getItem('auth_token'); // Adjust based on your auth setup
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+const getRequestOptions = (method, body) => ({
+  method,
+  headers: {
+    'Content-Type': 'application/json',
+    ...getAuthHeaders(),
+  },
+  body: body ? JSON.stringify(body) : undefined,
+});
+
 // GET ALL NETWORKS
 const getNetworks = (userId) =>
   new Promise((resolve, reject) => {
-    fetch(`${endpoint}?user_id=${userId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders(),
-      },
-    })
+    fetch(`${endpoint}?user_id=${userId}`, getRequestOptions('GET'))
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
@@ -30,13 +33,7 @@ const getNetworks = (userId) =>
 // GET SINGLE NETWORK
 const getSingleNetwork = (networkId) =>
   new Promise((resolve, reject) => {
-    fetch(`${endpoint}${networkId}/`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders(),
-      },
-    })
+    fetch(`${endpoint}/${networkId}/`, getRequestOptions('GET'))
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
@@ -53,23 +50,7 @@ const getSingleNetwork = (networkId) =>
 // CREATE NETWORK
 const createNetwork = (payload) =>
   new Promise((resolve, reject) => {
-    fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders(),
-      },
-      body: JSON.stringify({
-        network_name: payload.network_name,
-        network_type: payload.network_type,
-        number_of_staff: payload.number_of_staff,
-        setup_recommendation: payload.setup_recommendation,
-        network_ip_address: payload.network_ip_address,
-        user_id: payload.user_id, // Matches backend expectation
-        location: payload.location,
-        device_id: payload.device_id, // Matches backend expectation
-      }),
-    })
+    fetch(endpoint, getRequestOptions('POST', payload))
       .then((response) => {
         if (!response.ok) {
           if (response.status === 400) {
@@ -88,23 +69,7 @@ const createNetwork = (payload) =>
 // UPDATE NETWORK
 const updateNetwork = (payload) =>
   new Promise((resolve, reject) => {
-    fetch(`${endpoint}${payload.network_id}/`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders(),
-      },
-      body: JSON.stringify({
-        network_name: payload.network_name,
-        network_type: payload.network_type,
-        number_of_staff: payload.number_of_staff,
-        setup_recommendation: payload.setup_recommendation,
-        network_ip_address: payload.network_ip_address,
-        user_id: payload.user_id, // Optional, only sent if provided
-        location: payload.location,
-        device_id: payload.device_id, // Optional, only sent if provided
-      }),
-    })
+    fetch(`${endpoint}${payload.network_id}/`, getRequestOptions('PUT', payload))
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
@@ -125,13 +90,7 @@ const updateNetwork = (payload) =>
 // DELETE NETWORK
 const deleteNetwork = (networkId) =>
   new Promise((resolve, reject) => {
-    fetch(`${endpoint}${networkId}/`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeaders(),
-      },
-    })
+    fetch(`${endpoint}${networkId}/`, getRequestOptions('DELETE'))
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
