@@ -1,7 +1,7 @@
 // API CALLS FOR NETWORK-DEVICE RELATIONSHIPS
 
 // Base endpoint for the API (adjust to match your Django backend URL)
-const endpoint = 'http://localhost:8000/api/networkdevices/';
+const endpoint = 'http://localhost:8000/networkdevices';
 
 // Helper function to get authentication headers (assuming token-based auth, e.g., JWT)
 const getAuthHeaders = () => {

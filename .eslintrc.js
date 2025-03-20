@@ -13,6 +13,7 @@ module.exports = {
   },
   plugins: ['react', 'prettier'],
   rules: {
+    'react/button-has-type': 'error',
     'no-unused-vars': 'error', // Ensure no unused variables show errors
     'react/jsx-props-no-spreading': 'off',
     'react/react-in-jsx-scope': 'off',

@@ -1,18 +1,16 @@
 // API CALLS FOR USERS
 
-// Base endpoint for the API (adjust to match your Django backend URL)
-const endpoint = 'http://localhost:8000/api/users/';
+const endpoint = 'http://localhost:8000/users';
 
-// Helper function to get authentication headers (assuming token-based auth, e.g., JWT)
+// Helper function for auth headers
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('auth_token'); // Adjust based on your auth setup
+  const token = localStorage.getItem('auth_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 // GET ALL USERS
 const getUsers = () =>
-  new Promise((resolve) => {
-    // No reject, always resolve
+  new Promise((resolve, reject) => {
     fetch(endpoint, {
       method: 'GET',
       headers: {
@@ -21,22 +19,16 @@ const getUsers = () =>
       },
     })
       .then((response) => {
-        if (!response.ok) {
-          console.error(`HTTP error! status: ${response.status}`);
-          return []; // Resolve empty array on error
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
       })
-      .then((data) => resolve(data || [])) // Ensure array
-      .catch((error) => {
-        console.error('Fetch error:', error.message);
-        resolve([]); // Resolve empty array on network error
-      });
+      .then((data) => resolve(data))
+      .catch(reject);
   });
 
-// Ensure getSingleUser also handles 404 gracefully (for other components)
+// GET SINGLE USER
 const getSingleUser = (userId) =>
-  new Promise((resolve) => {
+  new Promise((resolve, reject) => {
     fetch(`${endpoint}${userId}/`, {
       method: 'GET',
       headers: {
@@ -46,31 +38,16 @@ const getSingleUser = (userId) =>
     })
       .then((response) => {
         if (!response.ok) {
-          if (response.status === 404) return null;
+          if (response.status === 404) {
+            throw new Error('User not found');
+          }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
       })
       .then((data) => resolve(data))
-      .catch((error) => {
-        console.error('Fetch error:', error.message);
-        resolve(null); // Resolve null on error
-      });
+      .catch(reject);
   });
-
-// Optional softer approach (uncomment to use instead):
-
-// .then((response) => {
-//   if (!response.ok) {
-//     if (response.status === 404) {
-//       return resolve(null); // No rejection, returns null for not found
-//     }
-//     throw new Error(`HTTP error! status: ${response.status}`);
-//   }
-//   return response.json();
-// })
-// .then(resolve)
-// .catch((error) => resolve({ error: error.message }));
 
 // CREATE USER
 const createUser = (payload) =>
@@ -84,7 +61,7 @@ const createUser = (payload) =>
       body: JSON.stringify({
         username: payload.username,
         email: payload.email,
-        password: payload.password, // Password will be hashed by backend
+        password: payload.password,
         role: payload.role,
       }),
     })
@@ -92,7 +69,7 @@ const createUser = (payload) =>
         if (!response.ok) {
           if (response.status === 400) {
             return response.json().then((errorData) => {
-              throw new Error(errorData.message || JSON.stringify(errorData));
+              throw new Error(errorData.message || 'Invalid data provided');
             });
           }
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -115,17 +92,17 @@ const updateUser = (payload) =>
       body: JSON.stringify({
         username: payload.username,
         email: payload.email,
-        password: payload.password, // Optional, hashed by backend if provided
+        password: payload.password, // Only send if provided
         role: payload.role,
       }),
     })
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error('The requested user was not found'); // Matches backend
+            throw new Error('User not found');
           } else if (response.status === 400) {
             return response.json().then((errorData) => {
-              throw new Error(errorData.message || JSON.stringify(errorData));
+              throw new Error(errorData.message || 'Invalid data provided');
             });
           }
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -149,11 +126,11 @@ const deleteUser = (userId) =>
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error('The requested user was not found'); // Matches backend
+            throw new Error('User not found');
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        resolve(); // No content expected (204), but backend returns a message
+        resolve();
       })
       .catch(reject);
   });

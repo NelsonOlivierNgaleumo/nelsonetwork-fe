@@ -24,12 +24,13 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@mui/material": "^6.4.7",
     "bootstrap": "^5.3.3",
-    "firebase": "^8.2.0",
+    "firebase": "^8.10.1",
     "next": "14.2.7",
     "prop-types": "^15.8.1",
     "react": "^18",
     "react-bootstrap": "^2.10.4",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-router-dom": "^7.3.0"
   },
   "devDependencies": {
     "eslint": "^8",
@@ -37,7 +38,7 @@
     "eslint-config-next": "14.2.7",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-plugin-import": "^2.30.0",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jsx-a11y": "^6.9.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.35.1",

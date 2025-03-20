@@ -12,14 +12,14 @@ import { createNetworkDevice } from '@/api/networkdeviceData';
 export default function NetworkCard({ networkObj, onUpdate }) {
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Delete the network
   const deleteThisNetwork = () => {
     if (window.confirm(`Delete ${networkObj.network_name}?`)) {
-      deleteNetwork(networkObj.network_id).then(() => onUpdate());
+      deleteNetwork(networkObj.network_id)
+        .then(() => onUpdate())
+        .catch((err) => console.error('Error deleting network:', err));
     }
   };
 
-  // Link network to a device
   const linkToDevice = () => {
     const payload = {
       network_id: networkObj.network_id,
@@ -37,20 +37,30 @@ export default function NetworkCard({ networkObj, onUpdate }) {
       });
   };
 
+  const getDeviceName = (device, deviceId) => {
+    if (device) {
+      if (typeof device === 'object') {
+        return device.device_name || 'Unnamed Device';
+      }
+      return device;
+    }
+    return deviceId || 'Not Linked';
+  };
+
   return (
     <div className="w-80 m-3">
       <Card className="text-center border-none rounded-xl bg-white shadow-lg">
-        <Card.Header className="font-semibold">{networkObj.network_name}</Card.Header>
+        <Card.Header className="font-semibold">{networkObj.network_name || 'Unnamed Network'}</Card.Header>
         <Card.Body>
           {networkObj.location && (
             <Card.Text className="text-left hover:text-blue-500 transition-colors duration-300">
               <FontAwesomeIcon icon={faLocationDot} /> {networkObj.location}
             </Card.Text>
           )}
-          <Card.Text className="text-left">Type: {networkObj.network_type}</Card.Text>
-          <Card.Text className="text-left">Staff: {networkObj.number_of_staff}</Card.Text>
-          <Card.Text className="text-left">IP: {networkObj.network_ip_address}</Card.Text>
-          <Card.Text className="text-left">Device: {networkObj.device?.device_name || networkObj.device_id}</Card.Text>
+          <Card.Text className="text-left">Type: {networkObj.network_type || 'N/A'}</Card.Text>
+          <Card.Text className="text-left">Staff: {networkObj.number_of_staff || 'N/A'}</Card.Text>
+          <Card.Text className="text-left">IP: {networkObj.network_ip_address || 'N/A'}</Card.Text>
+          <Card.Text className="text-left">Device: {getDeviceName(networkObj.device, networkObj.device_id)}</Card.Text>
           {successMessage && <p className={`text-${successMessage.includes('Failed') ? 'red' : 'green'}-500 mt-2`}>{successMessage}</p>}
         </Card.Body>
         <Card.Footer className="text-muted">
