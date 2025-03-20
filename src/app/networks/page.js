@@ -1,60 +1,102 @@
 'use client';
 
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
-import Link from 'next/link';
-import { getNetworks } from '@/api/networkData';
-import NetworkCard from '@/components/NetworkCard';
-import { useAuth } from '../../utils/context/authContext';
+import { useState, useEffect } from 'react';
+import { Button, Table } from 'react-bootstrap';
+// import { useRouter } from 'next/navigation';
+import { getNetworks, deleteNetwork } from '@/api/networkData';
+import NetworkForm from '@/components/forms/NetworkForm'; // Ensure you import the NetworkForm component
 
 export default function NetworksPage() {
   const [networks, setNetworks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { user } = useAuth();
+  const [showForm, setShowForm] = useState(false); // Controls visibility of the NetworkForm
+  const [selectedNetwork, setSelectedNetwork] = useState(null); // Holds the network to be edited
+  // const router = useRouter();
 
+  // Fetch all networks
   const fetchNetworks = async () => {
-    if (!user || !user.user_id) {
-      console.warn('User ID is undefined:', user);
-      return; // Ensure user is defined before making API call
-    }
     try {
-      setLoading(true);
-      setError(null);
-      const data = await getNetworks(user.user_id);
-      console.log('Fetched Networks:', data);
+      const data = await getNetworks();
       setNetworks(data);
-    } catch (err) {
-      console.error('Error fetching networks:', err);
-      setError('Failed to load networks.');
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching networks:', error);
     }
   };
 
+  // Trigger fetchNetworks when the page loads
   useEffect(() => {
-    if (user) fetchNetworks();
-  }, [user]); // Re-run when user changes
+    fetchNetworks();
+  }, []);
+
+  // Show form for creating a new network
+  const handleCreateNewNetwork = () => {
+    setSelectedNetwork(null); // Clear the selected network (for new network)
+    setShowForm(true);
+  };
+
+  // Show form for editing an existing network
+  const handleEditNetwork = (network) => {
+    setSelectedNetwork(network); // Set the network to edit
+    setShowForm(true); // Show the form
+  };
+
+  // Handle network creation or update
+  const handleNetworkCreated = () => {
+    fetchNetworks(); // Refresh the network list
+    setShowForm(false); // Hide the form after creation or update
+  };
+
+  // Handle network deletion
+  const handleDeleteNetwork = async (networkId) => {
+    try {
+      await deleteNetwork(networkId); // Call delete network API
+      fetchNetworks(); // Refresh the list after deletion
+    } catch (error) {
+      console.error('Error deleting network:', error);
+    }
+  };
 
   return (
-    <div className="container mx-auto p-4">
-      <Link href="/network/new" passHref>
-        <Button>Add A Network</Button>
-      </Link>
-      <h1 className="text-3xl font-bold mb-4">Networks</h1>
+    <div className="container">
+      <h1 className="text-center my-4">Networks</h1>
 
-      {loading && <p>Loading networks...</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {/* Show the NetworkForm if showForm is true */}
+      {showForm && <NetworkForm obj={selectedNetwork} onNetworkCreated={handleNetworkCreated} />}
 
-      {!loading && !error && networks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {networks.map((network) => (
-            <NetworkCard key={network.network_id} networkObj={network} onUpdate={fetchNetworks} />
-          ))}
+      {/* Display network list */}
+      {!showForm && (
+        <div>
+          <Button variant="primary" className="mb-3" onClick={handleCreateNewNetwork}>
+            Create New Network
+          </Button>
+
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Network Name</th>
+                <th>Network Type</th>
+                <th>Location</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {networks.map((network) => (
+                <tr key={network.network_id}>
+                  <td>{network.network_name}</td>
+                  <td>{network.network_type}</td>
+                  <td>{network.location}</td>
+                  <td>
+                    <Button variant="warning" size="sm" onClick={() => handleEditNetwork(network)}>
+                      Edit
+                    </Button>{' '}
+                    <Button variant="danger" size="sm" onClick={() => handleDeleteNetwork(network.network_id)}>
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </div>
-      ) : (
-        !loading && !error && <p>No networks available.</p>
       )}
     </div>
   );

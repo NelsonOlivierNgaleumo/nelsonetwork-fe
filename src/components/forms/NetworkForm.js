@@ -24,7 +24,7 @@ const initialState = {
   device_id: '',
 };
 
-export default function NetworkForm({ obj = initialState }) {
+export default function NetworkForm({ obj = initialState, onNetworkCreated }) {
   const [formInput, setFormInput] = useState({
     ...initialState,
     ...obj,
@@ -49,7 +49,7 @@ export default function NetworkForm({ obj = initialState }) {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError(''); // Clear previous errors
 
     try {
       const payload = {
@@ -70,9 +70,14 @@ export default function NetworkForm({ obj = initialState }) {
         await createNetwork(payload);
       }
 
+      // Call the onNetworkCreated prop to refresh the network list after successful submission
+      if (onNetworkCreated) {
+        onNetworkCreated();
+      }
+
+      // Navigate back to the networks list page after creation or update
       router.push('/networks');
     } catch (err) {
-      // Renamed from 'error' to 'err' to avoid shadowing
       console.error('Error submitting network:', err);
       setError(err.message || 'Failed to submit network. Please try again.');
     }
@@ -197,6 +202,7 @@ NetworkForm.propTypes = {
     location: PropTypes.string,
     device_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   }),
+  onNetworkCreated: PropTypes.func, // Prop for refreshing the network list
 };
 
 NetworkForm.defaultProps = {
